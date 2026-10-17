@@ -37,7 +37,7 @@ export default function Hero() {
         </p>
         <div className="stat-row">
           <div className="stat">
-            <strong>1.8+</strong>
+            <strong>2</strong>
             <span>Years Experience</span>
           </div>
           <div className="stat">
