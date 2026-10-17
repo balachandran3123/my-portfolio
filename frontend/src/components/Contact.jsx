@@ -1,6 +1,44 @@
 import { useState } from "react";
 
 const empty = { name: "", email: "", message: "" };
+const CONTACT_EMAIL = "balachandran3123@gmail.com";
+
+async function readJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+async function sendToApi(form) {
+  const res = await fetch("/api/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(form),
+  });
+  const data = await readJson(res);
+  return Boolean(res.ok && data && data.ok);
+}
+
+async function sendToEmail(form) {
+  const res = await fetch(`https://formsubmit.co/ajax/${CONTACT_EMAIL}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      name: form.name,
+      email: form.email,
+      message: form.message,
+      _subject: "Portfolio contact form",
+    }),
+  });
+  const data = await readJson(res);
+  return Boolean(res.ok && data);
+}
 
 export default function Contact() {
   const [form, setForm] = useState(empty);
@@ -17,14 +55,10 @@ export default function Contact() {
     setStatus({ type: "", text: "" });
 
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Could not send");
+      const saved = (await sendToApi(form)) || (await sendToEmail(form));
+      if (!saved) {
+        throw new Error(`Could not send. Please email ${CONTACT_EMAIL}`);
+      }
 
       setForm(empty);
       setStatus({ type: "ok", text: "Message sent. I will get back to you soon." });
@@ -48,8 +82,8 @@ export default function Contact() {
             </p>
             <p>
               Email:{" "}
-              <a href="mailto:balachandran3123@gmail.com">
-                <strong>balachandran3123@gmail.com</strong>
+              <a href={`mailto:${CONTACT_EMAIL}`}>
+                <strong>{CONTACT_EMAIL}</strong>
               </a>
             </p>
             <p>
