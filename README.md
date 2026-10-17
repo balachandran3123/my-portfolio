@@ -1,10 +1,10 @@
-# Balachandran — Portfolio
+# Balachandran — MERN Portfolio
 
-Personal portfolio website (Laravel / PHP developer). The site is built with React and Express.
+Simple personal portfolio built with the MERN stack.
 
-- **Express / Node** — REST APIs
-- **React (Vite)** — portfolio UI
-- Contact form saves each submission to `backend/respons_deatils.txt` (no database required)
+- **MongoDB** stores projects and contact messages
+- **Express / Node** exposes REST APIs
+- **React (Vite)** is the single-page portfolio UI
 
 ## Project structure
 
@@ -15,7 +15,7 @@ frontend/    React app on port 5173
 
 ## Setup
 
-1. Install [Node.js](https://nodejs.org/).
+1. Install [Node.js](https://nodejs.org/) and [MongoDB](https://www.mongodb.com/try/download/community) (local) or use MongoDB Atlas.
 2. From the project root:
 
 ```bash
@@ -30,7 +30,7 @@ PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/portfolio
 ```
 
-MongoDB is optional. It is only used for project data if you run it.
+For Atlas, replace `MONGO_URI` with your connection string.
 
 ## Run
 
@@ -40,20 +40,23 @@ From the project root (starts API + React together):
 npm run dev
 ```
 
+Or in two terminals:
+
+```bash
+npm run dev:backend
+npm run dev:frontend
+```
+
 Open [http://localhost:5173](http://localhost:5173).
 
-## Contact messages
+The frontend proxies `/api` to the backend, so projects load from MongoDB and the contact form posts to `/api/contact`.
 
-Each **Send message** click appends Name, Email, Message, and date to:
-
-`backend/respons_deatils.txt`
-
-Open that file in the project to read submissions. It is created automatically after the first send.
+If MongoDB is not running, the API still starts and serves sample projects. The contact form needs MongoDB to save messages.
 
 ## API
 
-| Method | Path            | Purpose                          |
-|--------|-----------------|----------------------------------|
-| GET    | `/api/health`   | Health check                     |
-| GET    | `/api/projects` | List projects                    |
-| POST   | `/api/contact`  | Save a contact note to the file  |
+| Method | Path            | Purpose              |
+|--------|-----------------|----------------------|
+| GET    | `/api/health`   | Health check         |
+| GET    | `/api/projects` | List projects        |
+| POST   | `/api/contact`  | Save a contact note  |
