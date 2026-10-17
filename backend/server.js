@@ -32,14 +32,7 @@ app.get("/api/projects", async (req, res, next) => {
 });
 
 app.use("/api/projects", projectRoutes);
-app.use("/api/contact", (req, res, next) => {
-  if (!mongoReady) {
-    return res.status(503).json({
-      error: "Database is offline. Start MongoDB to save messages.",
-    });
-  }
-  next();
-}, contactRoutes);
+app.use("/api/contact", contactRoutes);
 
 async function seedProjects() {
   await Project.deleteMany({});
@@ -55,7 +48,7 @@ async function start() {
     await seedProjects();
   } catch (err) {
     console.warn("MongoDB not available:", err.message);
-    console.warn("Serving sample projects. Contact form needs MongoDB.");
+    console.warn("Serving sample projects. Contact form still saves to respons_deatils.txt.");
   }
 
   app.listen(PORT, () => {

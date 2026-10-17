@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import fallbackProjects from "../data/projects.js";
 
 export default function Projects() {
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState(fallbackProjects);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -10,8 +11,15 @@ export default function Projects() {
         if (!res.ok) throw new Error("Failed to load");
         return res.json();
       })
-      .then(setProjects)
-      .catch(() => setError("Could not load projects from the API."));
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setProjects(data);
+          setError("");
+        }
+      })
+      .catch(() => {
+        setProjects(fallbackProjects);
+      });
   }, []);
 
   return (
