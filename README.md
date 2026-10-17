@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Balachandran — MERN Portfolio
 
 Simple personal portfolio built with the MERN stack.
@@ -60,3 +61,7 @@ If MongoDB is not running, the API still starts and serves sample projects. The 
 | GET    | `/api/health`   | Health check         |
 | GET    | `/api/projects` | List projects        |
 | POST   | `/api/contact`  | Save a contact note  |
+=======
+# my-portfolio
+My personal portfolio website showcasing my skills and projects.
+>>>>>>> 12e389aeb98a1c1a7290c5352b0213859bb42dbf
