@@ -1,4 +1,25 @@
+import { useEffect, useState } from "react";
+import profilePhoto from "../../../public/profile_Image/comming_zoon.png";
+
 export default function Hero() {
+  const [photoOpen, setPhotoOpen] = useState(false);
+
+  useEffect(() => {
+    if (!photoOpen) return undefined;
+
+    function onKey(event) {
+      if (event.key === "Escape") setPhotoOpen(false);
+    }
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [photoOpen]);
+
   return (
     <section id="home" className="container hero">
       <div>
@@ -27,6 +48,14 @@ export default function Hero() {
         </div>
       </div>
       <aside className="hero-card">
+        <button
+          className="hero-photo"
+          type="button"
+          onClick={() => setPhotoOpen(true)}
+          aria-label="View full profile photo"
+        >
+          <img src={profilePhoto} alt="Balachandran.S" />
+        </button>
         <p className="eyebrow">Currently</p>
         <h3>Web Application Developer</h3>
         <p>
@@ -50,6 +79,30 @@ export default function Hero() {
           </div>
         </div>
       </aside>
+
+      {photoOpen && (
+        <div
+          className="photo-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Profile photo"
+          onClick={() => setPhotoOpen(false)}
+        >
+          <button
+            className="photo-modal-close"
+            type="button"
+            onClick={() => setPhotoOpen(false)}
+            aria-label="Close photo"
+          >
+            Close
+          </button>
+          <img
+            src={profilePhoto}
+            alt="Balachandran.S"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>
+      )}
     </section>
   );
 }
