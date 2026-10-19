@@ -44,9 +44,62 @@ export default function Contact() {
   const [form, setForm] = useState(empty);
   const [status, setStatus] = useState({ type: "", text: "" });
   const [sending, setSending] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportPassword, setExportPassword] = useState("");
+  const [exportError, setExportError] = useState("");
 
   function update(event) {
     setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+  }
+
+  function openExport() {
+    setExportOpen(true);
+    setExportPassword("");
+    setExportError("");
+  }
+
+  function closeExport() {
+    setExportOpen(false);
+    setExportPassword("");
+    setExportError("");
+  }
+
+  async function exportFile(event) {
+    event.preventDefault();
+    setExporting(true);
+    setExportError("");
+    setStatus({ type: "", text: "" });
+
+    try {
+      const res = await fetch("/api/contact/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: exportPassword }),
+      });
+      const type = res.headers.get("content-type") || "";
+
+      if (!res.ok || type.includes("application/json")) {
+        const data = await readJson(res);
+        throw new Error(data?.error || "Could not export. Start the local backend.");
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "response_details.txt";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      closeExport();
+      setStatus({ type: "ok", text: "Downloaded response_details.txt" });
+    } catch (err) {
+      setExportError(err.message);
+    } finally {
+      setExporting(false);
+    }
   }
 
   async function submit(event) {
@@ -127,15 +180,58 @@ export default function Contact() {
                 required
               />
             </label>
-            <button className="btn btn-primary" type="submit" disabled={sending}>
-              {sending ? "Sending..." : "Send message"}
-            </button>
+            <div className="form-actions">
+              <button className="btn btn-primary" type="submit" disabled={sending}>
+                {sending ? "Sending..." : "Send message"}
+              </button>
+              <button className="btn btn-ghost" type="button" onClick={openExport}>
+                Export .txt
+              </button>
+            </div>
             {status.text && (
               <p className={`status ${status.type}`}>{status.text}</p>
             )}
           </form>
         </div>
       </div>
+
+      {exportOpen && (
+        <div
+          className="photo-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Export password"
+          onClick={closeExport}
+        >
+          <form
+            className="export-card form"
+            onClick={(event) => event.stopPropagation()}
+            onSubmit={exportFile}
+          >
+            <p className="eyebrow">Export</p>
+            <h3>Enter password</h3>
+            <label>
+              Password
+              <input
+                type="password"
+                value={exportPassword}
+                onChange={(event) => setExportPassword(event.target.value)}
+                autoFocus
+                required
+              />
+            </label>
+            <div className="form-actions">
+              <button className="btn btn-primary" type="submit" disabled={exporting}>
+                {exporting ? "Checking..." : "Download"}
+              </button>
+              <button className="btn btn-ghost" type="button" onClick={closeExport}>
+                Cancel
+              </button>
+            </div>
+            {exportError && <p className="status err">{exportError}</p>}
+          </form>
+        </div>
+      )}
     </section>
   );
 }

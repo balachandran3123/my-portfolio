@@ -18,6 +18,21 @@ function saveToFile({ name, email, message }) {
   fs.appendFileSync(filePath, entry, "utf8");
 }
 
+router.post("/export", (req, res) => {
+  const password = String(req.body?.password || "");
+  const expected = process.env.EXPORT_PASSWORD || "31233123";
+
+  if (password !== expected) {
+    return res.status(401).json({ error: "Wrong password. Export not allowed." });
+  }
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "No contact file yet. Send a message first." });
+  }
+
+  res.download(filePath, "response_details.txt");
+});
+
 router.post("/", async (req, res) => {
   try {
     const name = req.body.name?.trim();
